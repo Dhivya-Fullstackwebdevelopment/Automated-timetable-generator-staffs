@@ -14,7 +14,7 @@ const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "" },
   { label: "Timetable", icon: CalendarDays, path: "timetable" },
   { label: "Apply Leave", icon: HeartPulse, path: "leave" },
-  { label: "Workload", icon: BarChart3, path: "workload" },
+  // { label: "Workload", icon: BarChart3, path: "workload" },
 ];
 
 const StaffDashboard = () => {

@@ -227,7 +227,7 @@ const MyTimetable = () => {
                         {staticOtherSlot.staffName}
                       </span>
                       <span className="text-[10px] text-gray-400 text-center text-wrap w-full leading-snug mb-1">
-                        {staticOtherSlot.className} - Sec {staticOtherSlot.section}
+                        {staticOtherSlot.className}
                       </span>
                       <span className="text-[10px] text-gray-400 text-center text-wrap w-full leading-none">
                         {staticOtherSlot.roomNo}
