@@ -8,31 +8,52 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarDays, Send } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
+import { BASE_URL } from "@/api/apiurl";
 
 const LeaveForm = () => {
   const { applyLeave, staff } = useStaff();
-  const [leaveType, setLeaveType] = useState<"Emergency" | "Sick">("Emergency");
+  const [leaveType, setLeaveType] = useState("ACTIVE");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [reason, setReason] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!fromDate || !toDate || !reason.trim()) {
       toast.error("Please fill in all fields");
       return;
     }
-    applyLeave({
-      staffId: staff?.id || "",
-      leaveType,
-      fromDate,
-      toDate,
-      reason: reason.trim(),
-    });
-    toast.success(`${leaveType} leave applied successfully. Timetable will be regenerated.`);
-    setFromDate("");
-    setToDate("");
-    setReason("");
+
+    try {
+
+      const payload = {
+        staff: staff?.id,
+        leave_type: leaveType,
+        from_date: fromDate,
+        to_date: toDate,
+        reason: reason.trim(),
+      };
+
+      const res = await axios.post(
+        `${BASE_URL}/api/leave/apply/`,
+        payload
+      );
+
+      console.log(res.data);
+
+      toast.success(
+        `${leaveType} leave applied successfully`
+      );
+      setFromDate("");
+      setToDate("");
+      setReason("");
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Leave apply failed ❌");
+    }
   };
 
   return (
@@ -45,13 +66,32 @@ const LeaveForm = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>Leave Type</Label>
-              <Select value={leaveType} onValueChange={(v) => setLeaveType(v as "Emergency" | "Sick")}>
+              <Select
+                value={leaveType}
+                onValueChange={setLeaveType}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value="Emergency">🚨 Emergency Leave</SelectItem>
-                  <SelectItem value="Sick">🏥 Sick Leave</SelectItem>
+
+                  <SelectItem value="ACTIVE">
+                    ✅ Active
+                  </SelectItem>
+
+                  <SelectItem value="SICK">
+                    🏥 Sick Leave
+                  </SelectItem>
+
+                  <SelectItem value="EMERGENCY">
+                    🚨 Emergency Leave
+                  </SelectItem>
+
+                  <SelectItem value="RESIGNED">
+                    ❌ Resigned
+                  </SelectItem>
+
                 </SelectContent>
               </Select>
             </div>
