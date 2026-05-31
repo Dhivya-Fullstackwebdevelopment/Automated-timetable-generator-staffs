@@ -21,11 +21,16 @@ interface StaffContextType {
 const StaffContext = createContext<StaffContextType | null>(null);
 
 export function StaffProvider({ children }: { children: ReactNode }) {
-  const [staff, setStaff] = useState<Staff | null>(null);
+  const [staff, setStaff] = useState<Staff | null>(() => {
+    const stored = localStorage.getItem("staff");
+    return stored ? JSON.parse(stored) : null;
+  });
   const [timetable, setTimetable] = useState<TimetableSlot[]>(mockTimetable);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem("staff");
+  });
 
   const login = (email: string, _password: string): boolean => {
     // Mock login - accept any credentials
@@ -38,6 +43,7 @@ export function StaffProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setStaff(null);
     setIsLoggedIn(false);
+    localStorage.removeItem("staff");
   };
 
   const addNotification = (n: Omit<Notification, "id" | "createdAt">) => {

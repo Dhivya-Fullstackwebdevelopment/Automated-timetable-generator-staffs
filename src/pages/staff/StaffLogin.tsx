@@ -66,6 +66,8 @@ const StaffLogin = () => {
           navigate("/college/staff-dashboard");
         }
 
+        window.location.reload();
+
       } else {
         toast.error("Invalid credentials");
       }
