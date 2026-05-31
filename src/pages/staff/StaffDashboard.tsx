@@ -118,7 +118,7 @@ const StaffDashboard = () => {
 
           <div className="flex items-center gap-3">
             {/* Notifications */}
-            <Popover>
+            {/* <Popover>
               <PopoverTrigger asChild>
                 <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">
                   <Bell className="w-5 h-5 text-muted-foreground" />
@@ -162,7 +162,7 @@ const StaffDashboard = () => {
                   )}
                 </div>
               </PopoverContent>
-            </Popover>
+            </Popover> */}
 
             {/* Profile chip */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted">
