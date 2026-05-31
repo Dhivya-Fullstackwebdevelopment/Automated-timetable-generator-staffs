@@ -14,18 +14,40 @@ import {
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL } from "@/api/apiurl";
 
 const ResignModal = () => {
-  const { resign, logout } = useStaff();
+  const { logout } = useStaff();
   const navigate = useNavigate();
 
-  const handleResign = () => {
-    resign();
-    toast.success("Resignation submitted. Your timetable slots have been reassigned.");
-    setTimeout(() => {
-      logout();
-      navigate("/");
-    }, 2000);
+  const handleResign = async () => {
+    try {
+      // ✅ Get staff id from localStorage
+      const staffData = JSON.parse(localStorage.getItem("staff") || "{}");
+
+      const res = await axios.post(`${BASE_URL}/api/leave/resign/`, {
+        staff_id: staffData.id
+      });
+
+      if (res.data.status) {
+        toast.success("Resignation submitted successfully ✅");
+
+        // ✅ Logout and redirect after 2 seconds
+        setTimeout(() => {
+          logout();
+          localStorage.removeItem("staff");
+          navigate("/");
+        }, 2000);
+
+      } else {
+        toast.error(res.data.message || "Resignation failed ❌");
+      }
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Resignation failed. Please try again ❌");
+    }
   };
 
   return (
@@ -40,12 +62,18 @@ const ResignModal = () => {
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Resignation</AlertDialogTitle>
           <AlertDialogDescription>
-            This action is permanent. Your status will be set to "Resigned", all your timetable slots will be removed, and a department notification will be generated. The timetable will be automatically regenerated.
+            This action is permanent. Your status will be set to "Resigned",
+            all your timetable slots will be removed, and a department
+            notification will be generated. The timetable will be automatically
+            regenerated.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleResign} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogAction
+            onClick={handleResign}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
             Yes, Resign
           </AlertDialogAction>
         </AlertDialogFooter>

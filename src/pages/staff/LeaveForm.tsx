@@ -23,17 +23,23 @@ import axios from "axios";
 import { BASE_URL } from "@/api/apiurl";
 import { z } from "zod";
 
-const leaveSchema = z.object({
-  leave_type: z.string().min(1, "Leave type is required"),
+const leaveSchema = z
+  .object({
+    leave_type: z.string().min(1, "Leave type is required"),
 
-  from_date: z.string().min(1, "From date is required"),
+    from_date: z.string().min(1, "From date is required"),
 
-  to_date: z.string().min(1, "To date is required"),
+    to_date: z.string().min(1, "To date is required"),
 
-  reason: z
-    .string()
-    .min(3, "Reason is required"),
-});
+    reason: z.string().min(3, "Reason is required"),
+  })
+  .refine(
+    (data) => new Date(data.to_date) >= new Date(data.from_date),
+    {
+      message: "To Date must be greater than or equal to From Date",
+      path: ["to_date"],
+    }
+  );
 
 const LeaveForm = () => {
 
@@ -60,6 +66,7 @@ const LeaveForm = () => {
     to_date?: string;
     reason?: string;
   }>({});
+  const today = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async (
     e: React.FormEvent
@@ -199,9 +206,9 @@ const LeaveForm = () => {
                     🚨 Emergency Leave
                   </SelectItem>
 
-                  <SelectItem value="RESIGNED">
+                  {/* <SelectItem value="RESIGNED">
                     ❌ Resigned
-                  </SelectItem>
+                  </SelectItem> */}
 
                 </SelectContent>
 
@@ -226,12 +233,14 @@ const LeaveForm = () => {
 
                 <Input
                   type="date"
+                  min={today}
                   value={fromDate}
                   onChange={(e) => {
+                    setFromDate(e.target.value);
 
-                    setFromDate(
-                      e.target.value
-                    );
+                    if (toDate && e.target.value > toDate) {
+                      setToDate("");
+                    }
 
                     setErrors((prev) => ({
                       ...prev,
@@ -256,12 +265,10 @@ const LeaveForm = () => {
 
                 <Input
                   type="date"
+                  min={fromDate || today}
                   value={toDate}
                   onChange={(e) => {
-
-                    setToDate(
-                      e.target.value
-                    );
+                    setToDate(e.target.value);
 
                     setErrors((prev) => ({
                       ...prev,

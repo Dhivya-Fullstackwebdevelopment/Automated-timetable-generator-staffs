@@ -53,10 +53,7 @@ const StaffLogin = () => {
           status: res.data.data.status,
         };
 
-        localStorage.setItem(
-          "staff",
-          JSON.stringify(staffData)
-        );
+        localStorage.setItem("staff", JSON.stringify(staffData));
 
         toast.success("Login successful ✅");
 
@@ -69,14 +66,21 @@ const StaffLogin = () => {
         window.location.reload();
 
       } else {
-        toast.error("Invalid credentials");
+
+        // ✅ Check resigned or invalid
+        if (res.data.code === "RESIGNED") {
+          toast.error("You have been resigned. Please contact admin ❌");
+          setError("You have been resigned. Please contact admin.");
+        } else {
+          toast.error("Invalid credentials ❌");
+          setError("Invalid email or password");
+        }
+
       }
 
     } catch (error) {
       console.error(error);
-
       toast.error("Login failed ❌");
-
       setError("Invalid credentials");
     }
   };
