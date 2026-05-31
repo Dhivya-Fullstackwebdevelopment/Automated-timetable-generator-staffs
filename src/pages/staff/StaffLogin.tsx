@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { GraduationCap, Lock, Mail } from "lucide-react";
+import axios from "axios";
+import { BASE_URL } from "@/api/apiurl";
+import { toast } from "sonner";
 
 const StaffLogin = () => {
   const [email, setEmail] = useState("");
@@ -14,8 +17,9 @@ const StaffLogin = () => {
   const { login } = useStaff();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setError("");
 
     if (!email || !password) {
@@ -23,12 +27,54 @@ const StaffLogin = () => {
       return;
     }
 
-    const success = login(email, password);
-    if (success) {
-      // Detect institution from email (mock logic)
-      const isSchool = email.toLowerCase().includes("school");
-      navigate(isSchool ? "/school/staff-dashboard" : "/college/staff-dashboard");
-    } else {
+    try {
+
+      const res = await axios.post(
+        `${BASE_URL}/api/timetable/staff-login/`,
+        {
+          email,
+          password,
+        }
+      );
+
+      console.log(res.data);
+
+      if (res.data.status) {
+
+        const staffData = {
+          id: res.data.data.id,
+          name: res.data.data.name,
+          email: res.data.data.email,
+          department: res.data.data.department,
+          institutionType:
+            res.data.data.department_type == 1
+              ? "School"
+              : "College",
+          status: res.data.data.status,
+        };
+
+        localStorage.setItem(
+          "staff",
+          JSON.stringify(staffData)
+        );
+
+        toast.success("Login successful ✅");
+
+        if (res.data.data.department_type == 1) {
+          navigate("/school/staff-dashboard");
+        } else {
+          navigate("/college/staff-dashboard");
+        }
+
+      } else {
+        toast.error("Invalid credentials");
+      }
+
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Login failed ❌");
+
       setError("Invalid credentials");
     }
   };
